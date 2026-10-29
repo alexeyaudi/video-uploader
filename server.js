@@ -97,6 +97,17 @@ app.use(express.static(path.join(__dirname, "public")));
 app.put("/api/upload", async (req, res) => {
   try {
     const user = validateInitData(req.header("x-init-data"));
+    let resumeUrl = N8N_WEBHOOK_URL;
+const r = req.header("x-resume-url");
+if (r) {
+  try {
+    const decoded = decodeURIComponent(r);
+    if (new URL(decoded).origin !== new URL(N8N_WEBHOOK_URL).origin) throw new Error("bad origin");
+    resumeUrl = decoded;
+  } catch {
+    return res.status(400).json({ ok: false, error: "Некорректная ссылка возобновления" });
+  }
+}
     if (!user?.id) return res.status(401).json({ ok: false, error: "unauthorized" });
 
     const size = Number(req.header("content-length") || 0);
@@ -132,7 +143,7 @@ app.put("/api/upload", async (req, res) => {
       { expiresIn: LINK_HOURS * 3600 }
     );
 
-    const r = await fetch(N8N_WEBHOOK_URL, {
+    const r = await fetch(resumeUrl, {
       method: "POST",
       headers: { "content-type": "application/json", "x-api-key": N8N_API_KEY },
       body: JSON.stringify({
