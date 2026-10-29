@@ -95,6 +95,8 @@
       }
     };
     xhr.onerror = () => { setStatus("Сеть недоступна, попробуйте ещё раз", true); pick.disabled = false; };
+    const resume = new URLSearchParams(location.search).get("r");
+if (resume) xhr.setRequestHeader("x-resume-url", encodeURIComponent(resume));
     xhr.send(file);
   });
 </script>
