@@ -35,11 +35,6 @@ const LINK_HOURS = Number(process.env.LINK_HOURS || 6);  // срок жизни 
 const INITDATA_MAX_AGE_SEC = 60 * 60;                    // initData не старше часа
 const PREFIX = "videos/";
 
-console.log(
-  "env keys:",
-  Object.keys(process.env).filter((k) => /BOT|TOKEN|ENDPOINT|BUCKET|N8N/i.test(k))
-);
-console.log("BOT_TOKEN length:", (process.env.BOT_TOKEN || "").length);
 
 for (const [k, v] of Object.entries({
   ENDPOINT, BUCKET, ACCESS_KEY_ID, SECRET_ACCESS_KEY, BOT_TOKEN, N8N_WEBHOOK_URL, N8N_API_KEY,
@@ -97,19 +92,20 @@ app.use(express.static(path.join(__dirname, "public")));
 app.put("/api/upload", async (req, res) => {
   try {
     const user = validateInitData(req.header("x-init-data"));
-    let resumeUrl = N8N_WEBHOOK_URL;
-const r = req.header("x-resume-url");
-if (r) {
-  try {
-    const decoded = decodeURIComponent(r);
-    if (new URL(decoded).origin !== new URL(N8N_WEBHOOK_URL).origin) throw new Error("bad origin");
-    resumeUrl = decoded;
-  } catch {
-    return res.status(400).json({ ok: false, error: "Некорректная ссылка возобновления" });
-  }
-}
     if (!user?.id) return res.status(401).json({ ok: false, error: "unauthorized" });
 
+    let resumeUrl = N8N_WEBHOOK_URL;
+    const resumeHeader = req.header("x-resume-url");
+    if (resumeHeader) {
+      try {
+        const decoded = decodeURIComponent(resumeHeader);
+        if (new URL(decoded).origin !== new URL(N8N_WEBHOOK_URL).origin) throw new Error("bad origin");
+        resumeUrl = decoded;
+      } catch {
+        return res.status(400).json({ ok: false, error: "Некорректная ссылка возобновления" });
+      }
+    }
+    
     const size = Number(req.header("content-length") || 0);
     if (size && size > MAX_MB * 1024 * 1024) {
       return res.status(413).json({ ok: false, error: `Файл больше ${MAX_MB} МБ` });
@@ -143,7 +139,7 @@ if (r) {
       { expiresIn: LINK_HOURS * 3600 }
     );
 
-    const r = await fetch(resumeUrl, {
+  const resp = await fetch(resumeUrl, {
       method: "POST",
       headers: { "content-type": "application/json", "x-api-key": N8N_API_KEY },
       body: JSON.stringify({
@@ -156,7 +152,7 @@ if (r) {
         size_bytes: uploaded,
       }),
     });
-    if (!r.ok) throw new Error(`n8n webhook вернул ${r.status}`);
+    if (!resp.ok) throw new Error(`n8n вернул ${resp.status}`);
 
     res.json({ ok: true });
   } catch (e) {
