@@ -23,7 +23,6 @@ const {
   SECRET_ACCESS_KEY,
   REGION = "auto",
   N8N_WEBHOOK_URL,      // Production URL webhook в n8n
-  N8N_API_KEY,          // общий секрет для заголовка x-api-key
   PORT = "3000",
 } = process.env;
 
@@ -37,7 +36,7 @@ const PREFIX = "videos/";
 
 
 for (const [k, v] of Object.entries({
-  ENDPOINT, BUCKET, ACCESS_KEY_ID, SECRET_ACCESS_KEY, BOT_TOKEN, N8N_WEBHOOK_URL, N8N_API_KEY,
+  ENDPOINT, BUCKET, ACCESS_KEY_ID, SECRET_ACCESS_KEY, BOT_TOKEN, N8N_WEBHOOK_URL,
 })) {
   if (!v) {
     console.error(`Не задана переменная окружения: ${k}`);
