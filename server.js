@@ -141,7 +141,7 @@ app.put("/api/upload", async (req, res) => {
 
   const resp = await fetch(resumeUrl, {
       method: "POST",
-      headers: { "content-type": "application/json", "x-api-key": N8N_API_KEY },
+      headers: { "content-type": "application/json" },
       body: JSON.stringify({
         chat_id: user.id,
         user,
