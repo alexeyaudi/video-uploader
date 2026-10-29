@@ -22,11 +22,12 @@ const {
   ACCESS_KEY_ID,
   SECRET_ACCESS_KEY,
   REGION = "auto",
-  BOT_TOKEN,            // токен вашего Telegram-бота (для проверки initData)
   N8N_WEBHOOK_URL,      // Production URL webhook в n8n
   N8N_API_KEY,          // общий секрет для заголовка x-api-key
   PORT = "3000",
 } = process.env;
+
+const BOT_TOKEN = process.env.BOT_TOKEN || process.env.TELEGRAM_CONTENT_BOT_TOKEN;
 
 const MAX_MB = Number(process.env.MAX_MB || 500);        // лимит размера файла
 const TTL_HOURS = Number(process.env.TTL_HOURS || 24);   // срок хранения файла
