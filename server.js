@@ -34,6 +34,12 @@ const LINK_HOURS = Number(process.env.LINK_HOURS || 6);  // срок жизни 
 const INITDATA_MAX_AGE_SEC = 60 * 60;                    // initData не старше часа
 const PREFIX = "videos/";
 
+console.log(
+  "env keys:",
+  Object.keys(process.env).filter((k) => /BOT|TOKEN|ENDPOINT|BUCKET|N8N/i.test(k))
+);
+console.log("BOT_TOKEN length:", (process.env.BOT_TOKEN || "").length);
+
 for (const [k, v] of Object.entries({
   ENDPOINT, BUCKET, ACCESS_KEY_ID, SECRET_ACCESS_KEY, BOT_TOKEN, N8N_WEBHOOK_URL, N8N_API_KEY,
 })) {
